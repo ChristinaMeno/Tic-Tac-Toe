@@ -21,7 +21,7 @@ for a size four board
 
 def draw_board(board_state, board_size=3):
     board = range(9)
-    for x in  range(len(board_state)):
+    for x in range(len(board_state)):
         if x % 2 == 0:
             board[board_state[x]] = 'X'
         else:   
@@ -54,24 +54,26 @@ def has_won(current_state, board_size=3):
     wins = gen_wins()
      
     winning_state = False
+    evens = tuple(current_state[i] for i in range(0, len(current_state), 2))
+    odds  = tuple(current_state[i] for i in range(1, len(current_state), 2))
+
+    print evens, odds
     for y in wins:
-        evens = tuple(current_state[y] for y in range(0, len(current_state), 2))
-        odds  = tuple(current_state[y] for y in range(1, len(current_state), 2))
         for z in itertools.combinations(evens, board_size):
             if set(y) - set(z)  == set(()):
+                print 'EVEN', y , z
                 winning_state = True
         for a in itertools.combinations(odds, board_size):
             if set(y) - set(a)  == set(()):
+                print 'odd', y, a
                 winning_state = True
 
+    print winning_state
     return winning_state
-
 
     
 if __name__ == '__main__':
-    current_state = (4, 8, 0, 7, 6, 3)
-    draw_board(current_state)
-    print has_won(current_state)
-    current_state = (4, 8, 0, 7, 6, 3, 2)
-    draw_board(current_state)
-    print has_won(current_state)
+    #TEST ODDS and EVENS in has_won()
+    for x in range(9):
+        current_state = tuple(xrange(x))
+        has_won(current_state)
