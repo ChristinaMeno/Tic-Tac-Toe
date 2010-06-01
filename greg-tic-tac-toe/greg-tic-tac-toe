@@ -43,7 +43,6 @@ class GregTicTacToe(object):
         
 
     def reset(self, button=None):
-        print 'reset'
         self.human_starts = self.human_button.get_active()
         if not self.human_starts:
             gobject.timeout_add(MOVE_DELAY,self.computer_choice)
