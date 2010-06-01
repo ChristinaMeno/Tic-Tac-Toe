@@ -13,25 +13,32 @@ def choose_all_moves(current_state, start_game=0):
     my_moves = tuple(current_state[i] for i in range(start_game, len(current_state), 2))
     comp_moves = tuple(x for x in current_state if x not in my_moves) 
     if tic.player_won(comp_moves):
+        #print 'COMPUTER', current_state, my_moves, comp_moves
         return 
  
     #base case check
     if len(current_state) == tic.NUMBER_OF_MOVES:
         if tic.player_won(my_moves):
-            print 'OOPS', current_state, my_moves
+            print 'OOPS', current_state, my_moves, comp_moves
 
     #we play the opening move? 
     if len(current_state) % 2 == start_game:
         for next_move in remaining_moves:
+            #print 'HUMAN chose %d' % next_move
             choose_all_moves(current_state + (next_move,))
     else:
-        choose_all_moves(current_state + (tic.choose_move(current_state),)) 
+        next_move = tic.choose_move(current_state) 
+        if next_move != None:
+            #print 'COMPUTER chose %d' % next_move
+            choose_all_moves(current_state + (next_move,))
             
             
         
         
 if __name__ == '__main__':
     current_state = ()
+    print tic.draw_board(current_state)
+    print tic.gen_wins()
     print 'losing games where Human goes first'
     choose_all_moves(current_state)
     print 'losing games where Computer goes first'

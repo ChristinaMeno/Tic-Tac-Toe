@@ -63,62 +63,125 @@ def gen_wins(BOARD_SIZE=3):
            cols +\
            diags
 
+def get_set_not_blocked(players_moves, remaining_moves):
+    wins = gen_wins()
+    for i in wins:
+        if set(i) - set(players_moves) == set(i):
+            u  = tuple((j for j in i if j in remaining_moves))
+            if len(u):
+                return u[0]
+
   
+def get_maximal_block(players_moves, remaining_moves):
+    wins = gen_wins()
+    score_list = [0 for x in range(NUMBER_OF_MOVES)]
+    my_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in players_moves + remaining_moves)
+    for i in wins:
+        #determine win sets containing a player token
+        if set(i) - set(players_moves) != set(i) and\
+           set(i) - set(my_moves) == set(i):
+            for move in remaining_moves:
+                if move in i:
+                    score_list[move] += 1
+
+
+    #print 'get_maxim', score_list, my_moves 
+    #special case if opponent has chosen opposite corners your maximal block would be a corner
+    #but you must play to win instead
+    corners = (0,2,6,8)
+    unused_corners = tuple(x for x in corners if x not in players_moves) 
+    max_block = -1
+    for x in range(NUMBER_OF_MOVES):
+        if score_list[x] == max(score_list):
+            #print 'YEAH', x
+            max_block = x
+
+    if max_block in corners and len(unused_corners) == 2:
+        sides = (1,3,5,7)
+        for x in remaining_moves:
+            if x in sides:
+                return x
+    
+    return max_block
+        
+  
+
+def player_won(players_moves):
+    #split this out for easier testing and reduction of duplication
+    #TODO docstring
+    #GM good candidate for class member
+    wins = gen_wins()
+    winning_state = False
+    for i in wins:
+        for j in itertools.combinations(players_moves, BOARD_SIZE):
+            if set(i) - set(j)  == set(()):
+                winning_state = True
+    
+    return winning_state
+    
+
 def has_won(current_state):
     '''
         returns: True if there is a winning state on the board for either player, False otherwise
         this is determined by comparing the odds and evens of the current_state. Those represent the moves
         made by a single player. Comparing the combinations of size three with the winning offsets will identify a win
     '''
-    #GM good candidate for class member
-    wins = gen_wins()
      
-    winning_state = False
     evens = tuple(current_state[i] for i in range(0, len(current_state), 2))
     odds  = tuple(current_state[i] for i in range(1, len(current_state), 2))
 
-    #print evens, odds
-    for y in wins:
-        for z in itertools.combinations(evens, BOARD_SIZE):
-            if set(y) - set(z)  == set(()):
-                #print 'EVEN', y , z
-                winning_state = True
-        for a in itertools.combinations(odds, BOARD_SIZE):
-            if set(y) - set(a)  == set(()):
-                #print 'ODD', y, a
-                winning_state = True
+    return player_won(evens) or player_won(odds)
 
-    #print winning_state
-    return winning_state
-
-    
+        
 def choose_move(current_state, iter_count=0):
 
     #you can't win in the next transition if you only got one other token on the board
     #so introduce some special cases for opening moves
-    if len(current_state) in (0, 1):
-        if 0 not in current_state:
-            return 0
-        elif 4 not in current_state:
-            return 4
+    corners = (0,2,6,8)
+
+    #if len(current_state) in (0, 1):
+    '''
+    if set(corners) - set(current_state) == set(corners):
+        return 0 
+    
+    else:
+        remanin_corners = tuple(x for x in corners if x not in current_state)
+        if len(remaning_corners):
+            return remaning_corners[0]
+    '''
+    if 4 not in current_state:
+        return 4
+        
 
     remaining_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in current_state) 
 
-    print remaining_moves, current_state
+    #print remaining_moves, current_state
 
-    if not len(remaining_moves) or iter_count > len(remaining_moves):
-        return remaining_moves[0]
+    if not len(remaining_moves):
+        #GM TODO what does this really mean
+        return
+
+    if iter_count > len(remaining_moves):
+        #GM if this works you need to define it better
+        evens = tuple(current_state[i] for i in range(0, len(current_state), 2))
+        #odds  = tuple(current_state[i] for i in range(1, len(current_state), 2))
+        #snb = get_set_not_blocked(odds, remaining_moves)
+        snb = get_maximal_block(evens, remaining_moves)
+        return snb
         #return None 
 
     #choose a wining move for computer
     for x in remaining_moves:
-        next_state = current_state + (x,)
+        next_state = current_state + (x,) 
         if has_won(next_state):
             #print '%s, IS A win in state %s' %(str(x), str(iter_count))
             return x 
 
     #choose no state, and see if the next move could be a win
     return choose_move(current_state + (-1,), iter_count + 1)
+
+
+
         
     
 
@@ -165,11 +228,5 @@ def run_game(current_state):
         print 'tie game'
 
 if __name__ == '__main__':
-    ''' 
-    #TEST ODDS and EVENS in has_won()
-    for x in range(NUMBER_OF_MOVES):
-        current_state = tuple(xrange(x))
-        has_won(current_state)
-    '''
     current_state = ()
     run_game(current_state)
