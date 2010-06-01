@@ -1,0 +1,125 @@
+#!/bin/sh
+
+if [ -f ylwrap ]; then
+  rm ylwrap
+fi
+
+if [ -x debian/rules ]; then
+  fakeroot ./debian/rules clean
+fi
+
+if [ -f libtool ]; then
+  rm libtool
+fi
+
+if [ -f mkinstalldirs ]; then
+  rm mkinstalldirs
+fi
+
+if [ -f configure ]; then
+  rm configure
+fi
+
+if [ -f Makefile.in ]; then
+  rm Makefile.in
+fi
+
+if [ -f src/Makefile.in ]; then
+  rm src/Makefile.in
+fi
+
+if [ -f man/Makefile.in ]; then
+  rm man/Makefile.in
+fi
+
+if [ -f config.h ]; then
+  rm config.h
+fi
+
+if [ -f config.status ]; then
+  rm config.status
+fi
+
+if [ -f config.guess ]; then
+  rm config.guess
+fi
+
+if [ -f config.log ]; then
+  rm config.log
+fi
+
+if [ -f config.sub ]; then
+  rm config.sub
+fi
+
+if [ -f configure-stamp ]; then
+  rm configure-stamp
+fi
+
+if [ -f config.h.in ]; then
+  rm config.h.in
+fi
+
+if [ -f missing ]; then
+  rm missing
+fi
+
+if [ -f aclocal.m4 ]; then
+  rm aclocal.m4
+fi
+
+if [ -f stamp-h ]; then
+  rm stamp-h
+fi
+
+if [ -f stamp-h.in ]; then
+  rm stamp-h.in
+fi
+
+if [ -f install-sh ]; then
+  rm install-sh
+fi
+
+if [ -f depcomp ]; then
+  rm depcomp 
+fi
+
+if [ -f ltmain.sh ]; then
+  rm ltmain.sh
+fi
+
+if [ -d autom4te.cache ]; then
+  rm -r autom4te.cache
+fi
+
+
+if [ -d .deps ]; then
+  rm -r .deps
+fi
+
+if [ -d .libs ]; then
+  rm -r .libs
+fi
+
+
+if [ -f debian/files ]; then
+  rm debian/files
+fi
+
+if [ -d build ]; then
+  rm -r build
+fi
+
+if [ -f lywrap ]; then
+  rm lywrap
+fi
+
+rm -f *.pyc 2>/dev/null
+rm -f *.o 2>/dev/null
+rm -f *.lo 2>/dev/null
+rm -f *.loT 2>/dev/null
+rm -f debian/*.substvars 2>/dev/null
+rm -f debian/*.debhelper.log 2>/dev/null
+rm -f debian/*.debhelper 2>/dev/null
+
+# End

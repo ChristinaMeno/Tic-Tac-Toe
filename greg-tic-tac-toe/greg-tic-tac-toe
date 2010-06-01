@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import os
+import gtk
+import gtk.glade
+
+GLADE_PATH = '/usr/share/greg-tic-tac-toe/glade'
+GLADE_FILE = 'board.glade'
+X_ICON = gtk.STOCK_CANCEL
+O_ICON = gtk.STOCK_APPLY
+ICON_SIZE = gtk.ICON_SIZE_BUTTON
+
+class GregTicTacToe(object):
+
+    def __init__(self):
+        GLADE_PATH = '.'
+        self.widget_tree = gtk.glade.XML(os.path.join(GLADE_PATH,GLADE_FILE), 'window1') 
+        window = self.widget_tree.get_widget('window1')
+        #window.set_size_request(800,800)
+        window.show_all()
+    
+        self.images = [self.widget_tree.get_widget('image%s' % str(x+1)) for x in range(9)]    
+        
+        current_state = ()
+        current_state = range(9)
+        self.draw_board(current_state)
+            
+
+    def draw_board(self, current_state):            
+        for x in current_state:
+            if x % 2 == 0:
+                self.images[x].set_from_stock(X_ICON, ICON_SIZE) 
+            else:
+                self.images[x].set_from_stock(O_ICON, ICON_SIZE) 
+ 
+if __name__ == '__main__':
+    gt = GregTicTacToe()
+    gtk.main()

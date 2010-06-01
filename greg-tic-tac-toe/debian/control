@@ -1,0 +1,12 @@
+Source: greg-tic-tac-toe
+Section: misc
+Priority: optional
+Maintainer: Greg Meno <greg.meno@gmail.com>
+Build-Depends: debhelper (>= 4.0.0), python2.6-dev
+Standards-Version: 3.6.2
+
+Package: greg-tic-tac-toe
+Architecture: any
+Depends: python2.6, python-gtk2, ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
