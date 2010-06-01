@@ -63,14 +63,6 @@ def gen_wins(BOARD_SIZE=3):
            cols +\
            diags
 
-def get_set_not_blocked(players_moves, remaining_moves):
-    wins = gen_wins()
-    for i in wins:
-        if set(i) - set(players_moves) == set(i):
-            u  = tuple((j for j in i if j in remaining_moves))
-            if len(u):
-                return u[0]
-
   
 def get_maximal_block(players_moves, remaining_moves):
     wins = gen_wins()
@@ -86,16 +78,12 @@ def get_maximal_block(players_moves, remaining_moves):
 
 
     #print 'get_maxim', score_list, my_moves 
+    max_block = score_list.index(max(score_list)) 
+    
     #special case if opponent has chosen opposite corners your maximal block would be a corner
     #but you must play to win instead
     corners = (0,2,6,8)
     unused_corners = tuple(x for x in corners if x not in players_moves) 
-    max_block = -1
-    for x in range(NUMBER_OF_MOVES):
-        if score_list[x] == max(score_list):
-            #print 'YEAH', x
-            max_block = x
-
     if max_block in corners and len(unused_corners) == 2:
         sides = (1,3,5,7)
         for x in remaining_moves:
@@ -103,7 +91,6 @@ def get_maximal_block(players_moves, remaining_moves):
                 return x
     
     return max_block
-        
   
 
 def player_won(players_moves):
@@ -135,40 +122,17 @@ def has_won(current_state):
         
 def choose_move(current_state, iter_count=0):
 
-    #you can't win in the next transition if you only got one other token on the board
-    #so introduce some special cases for opening moves
-    corners = (0,2,6,8)
-
-    #if len(current_state) in (0, 1):
-    '''
-    if set(corners) - set(current_state) == set(corners):
-        return 0 
-    
-    else:
-        remanin_corners = tuple(x for x in corners if x not in current_state)
-        if len(remaning_corners):
-            return remaning_corners[0]
-    '''
+    #special cases for opening move
     if 4 not in current_state:
         return 4
         
-
     remaining_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in current_state) 
 
-    #print remaining_moves, current_state
-
-    if not len(remaining_moves):
-        #GM TODO what does this really mean
-        return
-
+    #recursion base case
     if iter_count > len(remaining_moves):
-        #GM if this works you need to define it better
+        #GM TODO if this works you need to define it better
         evens = tuple(current_state[i] for i in range(0, len(current_state), 2))
-        #odds  = tuple(current_state[i] for i in range(1, len(current_state), 2))
-        #snb = get_set_not_blocked(odds, remaining_moves)
-        snb = get_maximal_block(evens, remaining_moves)
-        return snb
-        #return None 
+        return get_maximal_block(evens, remaining_moves)
 
     #choose a wining move for computer
     for x in remaining_moves:
@@ -181,10 +145,6 @@ def choose_move(current_state, iter_count=0):
     return choose_move(current_state + (-1,), iter_count + 1)
 
 
-
-        
-    
-
 def run_game(current_state):
     '''
         Displays available move to choose
@@ -194,8 +154,8 @@ def run_game(current_state):
     draw_board(current_state)
     
     #human plays the even moves
-    human_plays = 0
-    current_player = 'human'
+    human_plays = 1
+    current_player = 'comp'
 
     while len(current_state ) < NUMBER_OF_MOVES:
         remaining_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in current_state) 
