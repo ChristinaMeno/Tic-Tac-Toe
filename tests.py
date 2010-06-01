@@ -25,7 +25,7 @@ def choose_all_moves(current_state, start_game=0):
         for next_move in remaining_moves:
             choose_all_moves(current_state + (next_move,))
     else:
-        next_move = tic.choose_move(current_state) 
+        next_move = tic.choose_move(current_state, start_game) 
         if next_move != None:
             choose_all_moves(current_state + (next_move,))
             

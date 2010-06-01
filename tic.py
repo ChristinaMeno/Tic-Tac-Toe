@@ -7,16 +7,9 @@ GM: this is how the tuple that represents board state is organized
     currently odd moves are marked by an X and even moves are O. Each element of the tuple
     is an index on the board layout below.
 
-for a size three board:
     0 1 2
     3 4 5
     6 7 8
-
-for a size four board
-    0  1  2  3
-    4  5  6  7
-    8  9  10 11
-    12 13 14 15
 '''
 
 BOARD_SIZE = 3
@@ -44,7 +37,7 @@ def draw_board(board_state):
     print '\n'
         
 
-def gen_wins(BOARD_SIZE=3):
+def gen_wins():
     '''
         Each tuple represents a slice of the board where a win can occur.
         They contain the offsets that represent rows columns and diagonals
@@ -64,26 +57,30 @@ def gen_wins(BOARD_SIZE=3):
            diags
 
   
-def get_maximal_block(players_moves, remaining_moves):
+def get_maximal_block(opponent_moves, remaining_moves):
+    '''
+        returns: The next move which blocks the most of opponents moves.
+    '''
     wins = gen_wins()
     score_list = [0 for x in range(NUMBER_OF_MOVES)]
-    my_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in players_moves + remaining_moves)
+    my_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in opponent_moves + remaining_moves)
     for i in wins:
-        #determine win sets containing a player token
-        if set(i) - set(players_moves) != set(i) and\
+        #determine win sets containing a opponent tokens and which sets we don't have a token in.
+        if set(i) - set(opponent_moves) != set(i) and\
            set(i) - set(my_moves) == set(i):
             for move in remaining_moves:
                 if move in i:
                     score_list[move] += 1
 
 
-    #print 'get_maxim', score_list, my_moves 
+    #this is looking for which move is a member of a winning set 
+    #that satisfies the rules above with the highest frequency
     max_block = score_list.index(max(score_list)) 
     
     #special case if opponent has chosen opposite corners your maximal block would be a corner
     #but you must play to win instead
     corners = (0,2,6,8)
-    unused_corners = tuple(x for x in corners if x not in players_moves) 
+    unused_corners = tuple(x for x in corners if x not in opponent_moves) 
     if max_block in corners and len(unused_corners) == 2:
         sides = (1,3,5,7)
         for x in remaining_moves:
@@ -94,9 +91,10 @@ def get_maximal_block(players_moves, remaining_moves):
   
 
 def player_won(players_moves):
-    #split this out for easier testing and reduction of duplication
-    #TODO docstring
-    #GM good candidate for class member
+    '''
+        returns: True if there is a winning state in players moves, False otherwise.
+        For this to be useful players moves should be a sequence of even moves or odd moves
+    '''
     wins = gen_wins()
     winning_state = False
     for i in wins:
@@ -120,8 +118,10 @@ def has_won(current_state):
     return player_won(evens) or player_won(odds)
 
         
-def choose_move(current_state, iter_count=0):
-
+def choose_move(current_state, computer_first=False, iter_count=0):
+    '''
+        returns: Computers choice for next move.
+    '''
     #special cases for opening move
     if 4 not in current_state:
         return 4
@@ -130,19 +130,17 @@ def choose_move(current_state, iter_count=0):
 
     #recursion base case
     if iter_count > len(remaining_moves):
-        #GM TODO if this works you need to define it better
-        evens = tuple(current_state[i] for i in range(0, len(current_state), 2))
-        return get_maximal_block(evens, remaining_moves)
+        opponent_moves = tuple(current_state[i] for i in range(int(computer_first), len(current_state), 2))
+        return get_maximal_block(opponent_moves, remaining_moves)
 
     #choose a wining move for computer
     for x in remaining_moves:
         next_state = current_state + (x,) 
         if has_won(next_state):
-            #print '%s, IS A win in state %s' %(str(x), str(iter_count))
             return x 
 
     #choose no state, and see if the next move could be a win
-    return choose_move(current_state + (-1,), iter_count + 1)
+    return choose_move(current_state + (-1,), computer_first, iter_count + 1)
 
 
 def run_game(current_state):
@@ -155,7 +153,7 @@ def run_game(current_state):
     
     #human plays the even moves
     human_plays = 1
-    current_player = 'comp'
+    current_player = 'computer'
 
     while len(current_state ) < NUMBER_OF_MOVES:
         remaining_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in current_state) 
@@ -171,12 +169,10 @@ def run_game(current_state):
         else:
             #comupter chooses
             current_player = 'computer'
-            next_move = choose_move(current_state)
-            print 'Computer choose:',  next_move
+            next_move = choose_move(current_state, human_plays)
 
         #update state and draw_board
         current_state = current_state + (next_move,) 
-        print '%d moves have been made'% len(current_state)
         draw_board(current_state)
 
         #check for a win
