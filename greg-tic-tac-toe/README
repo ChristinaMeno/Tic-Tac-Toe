@@ -1,3 +1,4 @@
 My tic tac toe never looses regardless of which player gets the first move.
 It requires at least python2.6.
 
+if you don't have debian don't worry python greg-tic-tak-toe should still work. If you don't have or don't want to install gtk just to play a silly game you can run the test-harness in the tic module for a command line exp.

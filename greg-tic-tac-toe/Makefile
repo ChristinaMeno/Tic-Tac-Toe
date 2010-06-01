@@ -8,7 +8,7 @@ install:
 
 	#Install our glade layout
 	-mkdir -p $(DESTDIR)/usr/share/greg-tic-tac-toe/glade
-	-cp -r glade/* $(DESTDIR)/usr/share/greg-tic-tac-toe/glade
+	-cp board.glade $(DESTDIR)/usr/share/greg-tic-tac-toe/glade
 
 	
 all:

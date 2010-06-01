@@ -1,37 +1,110 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import gtk
 import gtk.glade
+import gobject
+import tic
 
 GLADE_PATH = '/usr/share/greg-tic-tac-toe/glade'
 GLADE_FILE = 'board.glade'
+ICON_SIZE = gtk.ICON_SIZE_BUTTON
+
 X_ICON = gtk.STOCK_CANCEL
 O_ICON = gtk.STOCK_APPLY
-ICON_SIZE = gtk.ICON_SIZE_BUTTON
+EMPTY_ICON = gtk.STOCK_DISCARD
+
+NUMBER_OF_MOVES = 9
+MOVE_DELAY = 1000
 
 class GregTicTacToe(object):
 
     def __init__(self):
-        GLADE_PATH = '.'
-        self.widget_tree = gtk.glade.XML(os.path.join(GLADE_PATH,GLADE_FILE), 'window1') 
-        window = self.widget_tree.get_widget('window1')
-        #window.set_size_request(800,800)
-        window.show_all()
-    
-        self.images = [self.widget_tree.get_widget('image%s' % str(x+1)) for x in range(9)]    
-        
-        current_state = ()
-        current_state = range(9)
-        self.draw_board(current_state)
-            
+        try:
+            self.widget_tree = gtk.glade.XML(os.path.join(GLADE_PATH,GLADE_FILE), 'window1') 
+        except RuntimeError:
+            sys.stderr.write('%s not present in %s using local copy'%(GLADE_FILE, GLADE_PATH))
+            self.widget_tree = gtk.glade.XML(os.path.join('.',GLADE_FILE), 'window1') 
 
-    def draw_board(self, current_state):            
-        for x in current_state:
-            if x % 2 == 0:
-                self.images[x].set_from_stock(X_ICON, ICON_SIZE) 
+        self.window = self.widget_tree.get_widget('window1')
+        self.window.show_all()
+    
+        self.buttons = []
+        for x in range(NUMBER_OF_MOVES):
+            button = self.widget_tree.get_widget('button%s' % str(x+1))
+            self.buttons.append(button)
+            button.connect('clicked', self.opponent_chose, x)
+        
+        self.widget_tree.get_widget('new_game').connect('clicked', self.reset)
+        #TODO inform user that this only has effect when the choose a new game 
+        self.human_button = self.widget_tree.get_widget('human_starts')
+        self.reset()
+        
+
+    def reset(self, button=None):
+        print 'reset'
+        self.human_starts = self.human_button.get_active()
+        if not self.human_starts:
+            gobject.timeout_add(MOVE_DELAY,self.computer_choice)
+            
+        self.current_state = ()
+        self.draw_board()
+
+        
+    def show_dialog(self, mesg):
+        diag = gtk.Dialog(mesg, self.window,
+                          gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                          (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+
+        label = gtk.Label(mesg)
+        diag.vbox.pack_start(label)
+        label.show()
+        diag.run()
+        diag.destroy()
+        
+
+    def opponent_chose(self, widget, next_move):
+        if len(self.current_state) % 2 == int(not self.human_starts):    
+            self.current_state = self.current_state + (next_move,) 
+            self.draw_board()
+
+            if tic.has_won(self.current_state):
+                self.show_dialog('Human won')
             else:
-                self.images[x].set_from_stock(O_ICON, ICON_SIZE) 
+                gobject.timeout_add(MOVE_DELAY,self.computer_choice)
+
+    
+    def computer_choice(self):
+        next_move = tic.choose_move(self.current_state, int(not self.human_starts))
+        self.current_state = self.current_state + (next_move,) 
+        self.draw_board()
+
+        if tic.has_won(self.current_state):
+            self.show_dialog('Computer won')
+
+
+    def draw_board(self):            
+        if not len(self.current_state):
+            for x in range(NUMBER_OF_MOVES):
+                image = gtk.Image()
+                image.set_from_stock(EMPTY_ICON, ICON_SIZE)
+                self.buttons[x].set_image(image) 
+            
+        for x in range(len(self.current_state)):
+            image = gtk.Image()
+            if x % 2 == 0:
+                image.set_from_stock(X_ICON, ICON_SIZE) 
+            else:
+                image.set_from_stock(O_ICON, ICON_SIZE) 
+
+            self.buttons[self.current_state[x]].set_image(image) 
+
+
+        #TODO this shouldn't be here, but it is easy for now
+        if len(self.current_state) == NUMBER_OF_MOVES:
+            self.show_dialog('Tie game')
+            
  
 if __name__ == '__main__':
     gt = GregTicTacToe()
