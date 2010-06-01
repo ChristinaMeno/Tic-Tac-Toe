@@ -61,6 +61,10 @@ def get_maximal_block(opponent_moves, remaining_moves):
     '''
         returns: The next move which blocks the most of opponents moves.
     '''
+
+    if len(remaining_moves) == 1:
+        return remaining_moves[0]
+
     wins = gen_wins()
     score_list = [0 for x in range(NUMBER_OF_MOVES)]
     my_moves = tuple(x for x in range(NUMBER_OF_MOVES) if x not in opponent_moves + remaining_moves)
