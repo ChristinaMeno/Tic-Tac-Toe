@@ -15,27 +15,25 @@ GM: this is how the tuple that represents board state is organized
 BOARD_SIZE = 3
 NUMBER_OF_MOVES = BOARD_SIZE ** 2
 
-def draw_board(board_state):
-    '''
-        Turn out a crappy ascii representation of the board.
-        Numbers representing the position are included so 
-        that the user know where his next move will be placed
-    '''
-    board = range(NUMBER_OF_MOVES)
-    for x in range(len(board_state)):
-        if x == NUMBER_OF_MOVES:
-            break
-        if x % 2 == 0:
-            board[board_state[x]] = 'X'
-        else:   
-            board[board_state[x]] = 'O'
-        
-    rows = tuple(board[x:x+BOARD_SIZE] for x in range(0, NUMBER_OF_MOVES, BOARD_SIZE))
-    for r in rows:
-        print r
 
-    print '\n'
-        
+def draw_board(board_state, show_indexes=False):
+
+    board = '''
+ {0}  |  {1}  |  {2}
+----+-----+----
+ {3}  |  {4}  |  {5}
+----+-----+----
+ {6}  |  {7}  |  {8}
+            '''
+    output = [' ' for x in range(NUMBER_OF_MOVES)]
+    for x in range(len(board_state)):
+        if x % 2 == 0:
+            output[board_state[x]] = (not show_indexes and 'X') or board_state[x] 
+        else:
+            output[board_state[x]] = (not show_indexes and 'O') or board_state[x] 
+
+    print board.format(*output)
+
 
 def gen_wins():
     '''

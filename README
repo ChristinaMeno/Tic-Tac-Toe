@@ -3,3 +3,70 @@ Intructions:
 2. Create an app that can interactively play the game of Tic Tac Toe against another player and never lose.
 3. Commit early and often, with good messages.
 4. Push your code back to github and send me a pull request.
+
+New and improved TTT challenge.
+I will write a daemon that sits on a socket visible to the internet.
+This is the protocol that I will communicate with.
+
+JSON for interchange
+
+To identify yourself you must sha1 the github url to your TTT solution
+i.e.
+$ echo "https://github.com/GregMeno/Tic-Tac-Toe" | shasum
+44475cf57725c5a988a27cebe6e79a8bbf732f85  -
+
+request a new game:
+{"sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+response is one of:
+{"game_state": [], "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+{"game_state": [opening_move,], "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"} where opening move is a offset described below
+
+#TODO I considered making the state represented by a concatination of the offsets converted to hex, just to make it a little harder.
+board offsets:
+
+ 0  |  1  |  2
+----+-----+----
+ 3  |  4  |  5
+----+-----+----
+ 6  |  7  |  8
+            
+partial game state plotted. request a opponent to move: 
+{"game_state": [4, 0, 1, 7], "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+ O  |  X  |   
+----+-----+----
+    |  X  |   
+----+-----+----
+    |  O  |   
+            
+response:
+{"game_state": [4, 0, 1, 7, 3], "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+ O  |  X  |   
+----+-----+----
+ X  |  X  |   
+----+-----+----
+    |  O  |   
+
+...
+
+complete game state plotted, tie game:
+{"game_state": [4, 0, 1, 7, 3, 5, 2, 6, 8], "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+ O  |  X  |  X
+----+-----+----
+ X  |  X  |  O
+----+-----+----
+ O  |  O  |  X
+
+
+Determining if we will review your solution:
+request:
+{"cannot_lose": null, "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+response one of: 
+{"cannot_lose": true, "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+{"cannot_lose": false, "sha1": "44475cf57725c5a988a27cebe6e79a8bbf732f85"}
+
+If you recieve a true response it means you may contact hiring@coxinc.com with your github url to progress in our hiring process.
